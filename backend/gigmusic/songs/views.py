@@ -1,17 +1,23 @@
 from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
+
 from rest_framework import viewsets
+from rest_framework import filters
+from rest_framework.decorators import action
+
+import pymongo
 
 from .serializers import CancionesSerializer
 from .models import Canciones
 
 # Create your views here.
 class CancionesView(viewsets.ModelViewSet):
-    serializer_class = CancionesSerializer
-    queryset = Canciones.objects.all()
 
-    @require_http_methods(["GET"])
-    def get_viewset(self, request, cancion=None):
-    	cancion = self.kwargs.get('cancion', None)
-    	queryset = Canciones.objects.filter(Metadata__startswith={'cancion':'cancion'})
-    	return queryset
+	filter_backends = (filters.SearchFilter,)
+	serializer_class = CancionesSerializer
+
+	@action(detail=True, methods=['get'])
+	def get_queryset(self):
+		queryset = Canciones.objects.all()
+		search = self.request.query_params.get('search')
+		queryset = queryset.filter(metadata={'artista':search})
+		return queryset

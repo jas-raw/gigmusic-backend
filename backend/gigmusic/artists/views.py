@@ -1,18 +1,20 @@
 from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
 from rest_framework import viewsets
+from rest_framework import filters
+from rest_framework.decorators import action
 
 from .serializers import ArtistasSerializer
 from .models import Artistas
 
 # Create your views here.
 class ArtistasView(viewsets.ModelViewSet):
-    serializer_class = ArtistasSerializer
-    queryset = Artistas.objects.all()
-    lookup_field = 'nombre'
 
-    @require_http_methods(["GET"])
-    def get_viewset(self, request, nombre=None):
-    	nombre = self.kwargs.get('nombre', None)
-    	queryset = Artistas.objects.filter(nombre=nombre)
-    	return queryset
+	search_fields = ['nombre', 'genero']
+	filter_backends = (filters.SearchFilter,)
+	serializer_class = ArtistasSerializer
+	lookup_field = 'nombre'
+
+	@action(detail=True, methods=['get'])
+	def get_queryset(self):
+		queryset = Artistas.objects.all()
+		return queryset

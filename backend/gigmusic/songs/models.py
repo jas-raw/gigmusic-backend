@@ -53,6 +53,9 @@ class Metadata(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return self.cancion
+
 class MetadataForm(forms.ModelForm):
 
     class Meta:
@@ -77,4 +80,4 @@ class Canciones(models.Model):
     
     def __str__(self):
         #Return username.
-        return self.metadata
+        return str(self.metadata)
